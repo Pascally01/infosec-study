@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfoSec Study Agent</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0c0e14;
+    --surface: #13151f;
+    --surface2: #1a1d2a;
+    --border: #252836;
+    --accent: #4f6ef7;
+    --accent-dim: #4f6ef720;
+    --accent2: #7c3aed;
+    --green: #22c55e;
+    --green-dim: #22c55e18;
+    --red: #ef4444;
+    --red-dim: #ef444418;
+    --yellow: #f59e0b;
+    --yellow-dim: #f59e0b18;
+    --text: #e2e4f0;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+  }
+  .header-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .header-title { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+  .header-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .header-badge {
+    margin-left: auto;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--accent)30;
+  }
+
+  /* LAYOUT */
+  .layout {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 8px;
+    margin-bottom: 4px;
+    margin-top: 10px;
+  }
+  .sidebar-label:first-child { margin-top: 0; }
+  .topic-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .topic-btn:hover { background: var(--surface2); color: var(--text); }
+  .topic-btn.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+  .topic-icon { font-size: 14px; min-width: 18px; }
+
+  .mode-toggle {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .mode-row {
+    display: flex;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .mode-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .mode-btn.active { background: var(--accent); color: white; }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* WELCOME SCREEN */
+  .welcome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    gap: 16px;
+  }
+  .welcome-icon { font-size: 48px; margin-bottom: 8px; }
+  .welcome h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .welcome p { color: var(--text-muted); font-size: 14px; max-width: 420px; line-height: 1.7; }
+  .welcome-chips {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px;
+  }
+  .chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .start-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .start-btn:hover { opacity: 0.9; }
+
+  /* QUESTION AREA */
+  .question-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 32px;
+    overflow-y: auto;
+    gap: 20px;
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .q-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .tag-flashcard { background: var(--accent-dim); color: var(--accent); }
+  .tag-scenario { background: #7c3aed20; color: #a78bfa; }
+  .tag-interview { background: var(--yellow-dim); color: var(--yellow); }
+  .q-topic { font-size: 12px; color: var(--text-muted); }
+  .q-num { margin-left: auto; font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 26px;
+  }
+  .question-card h3 {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.55;
+    letter-spacing: -0.2px;
+  }
+  .question-card .context {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    color: var(--text);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    transition: all 0.15s;
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-dim); }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.correct { background: var(--green-dim); border-color: var(--green); color: var(--text); }
+  .option-btn.wrong { background: var(--red-dim); border-color: var(--red); color: var(--text); }
+  .option-letter {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    min-width: 20px;
+    margin-top: 1px;
+  }
+  .option-btn.correct .option-letter { color: var(--green); }
+  .option-btn.wrong .option-letter { color: var(--red); }
+
+  /* OPEN ANSWER */
+  .answer-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    color: var(--text);
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.15s;
+  }
+  .answer-box:focus { border-color: var(--accent); }
+
+  /* FEEDBACK */
+  .feedback {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+  .feedback.correct { border-color: var(--green); background: var(--green-dim); }
+  .feedback.wrong { border-color: var(--red); background: var(--red-dim); }
+  .feedback.neutral { border-color: var(--accent); background: var(--accent-dim); }
+  .feedback-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .feedback.correct .feedback-label { color: var(--green); }
+  .feedback.wrong .feedback-label { color: var(--red); }
+  .feedback.neutral .feedback-label { color: var(--accent); }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    padding: 16px 32px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .score-display {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .score-item strong { color: var(--text); font-weight: 600; }
+  .score-item.good strong { color: var(--green); }
+  .score-item.bad strong { color: var(--red); }
+
+  .action-btn {
+    margin-left: auto;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .action-btn:hover { opacity: 0.88; }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .action-btn.secondary {
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .loading-dots {
+    display: flex; gap: 4px; align-items: center;
+  }
+  .loading-dots span {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🛡️</div>
+  <div>
+    <div class="header-title">InfoSec Study Agent</div>
+    <div class="header-sub">AI Governance · ITIL · Interview Prep</div>
+  </div>
+  <div class="header-badge">Powered by Claude</div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Topics</div>
+    <button class="topic-btn active" data-topic="NIST AI RMF" onclick="selectTopic(this)">
+      <span class="topic-icon">🗺️</span> NIST AI RMF
+    </button>
+    <button class="topic-btn" data-topic="SR 11-7 Model Risk" onclick="selectTopic(this)">
+      <span class="topic-icon">🏦</span> SR 11-7
+    </button>
+    <button class="topic-btn" data-topic="ISO 42001" onclick="selectTopic(this)">
+      <span class="topic-icon">📋</span> ISO 42001
+    </button>
+    <button class="topic-btn" data-topic="ITIL Fundamentals" onclick="selectTopic(this)">
+      <span class="topic-icon">⚙️</span> ITIL Fundamentals
+    </button>
+    <button class="topic-btn" data-topic="AI Cybersecurity Controls" onclick="selectTopic(this)">
+      <span class="topic-icon">🔐</span> AI Controls
+    </button>
+    <button class="topic-btn" data-topic="Interview Scenarios" onclick="selectTopic(this)">
+      <span class="topic-icon">🎯</span> Interview Prep
+    </button>
+    <button class="topic-btn" data-topic="Mixed" onclick="selectTopic(this)">
+      <span class="topic-icon">🔀</span> Mixed
+    </button>
+
+    <div class="mode-toggle">
+      <div class="sidebar-label" style="margin-top:0; margin-bottom:8px;">Mode</div>
+      <div class="mode-row">
+        <button class="mode-btn active" id="modeFlash" onclick="setMode('flashcard')">Flash</button>
+        <button class="mode-btn" id="modeScenario" onclick="setMode('scenario')">Scene</button>
+        <button class="mode-btn" id="modeInterview" onclick="setMode('interview')">Interview</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- WELCOME -->
+    <div class="welcome" id="welcomeScreen">
+      <div class="welcome-icon">🧠</div>
+      <h2>Ready to prep for the InfoSec Analyst role?</h2>
+      <p>Pick a topic from the sidebar, choose your study mode, and hit Start. Claude will generate questions and give you real feedback on every answer.</p>
+      <div class="welcome-chips">
+        <span class="chip">NIST AI RMF</span>
+        <span class="chip">SR 11-7</span>
+        <span class="chip">ISO 42001</span>
+        <span class="chip">ITIL</span>
+        <span class="chip">Interview Scenarios</span>
+      </div>
+      <button class="start-btn" onclick="startSession()">Start Studying →</button>
+    </div>
+
+    <!-- QUESTION AREA -->
+    <div class="question-area hidden" id="questionArea">
+      <div class="q-meta">
+        <span class="q-tag" id="qTag">Flashcard</span>
+        <span class="q-topic" id="qTopic">NIST AI RMF</span>
+        <span class="q-num" id="qNum">#1</span>
+      </div>
+
+      <div class="question-card" id="questionCard">
+        <h3 id="questionText"></h3>
+        <div class="context hidden" id="questionContext"></div>
+      </div>
+
+      <!-- MC Options -->
+      <div class="options hidden" id="mcOptions"></div>
+
+      <!-- Open Answer -->
+      <div class="hidden" id="openAnswerArea">
+        <textarea class="answer-box" id="openAnswer" placeholder="Type your answer here..."></textarea>
+      </div>
+
+      <!-- Feedback -->
+      <div class="feedback hidden" id="feedbackBox">
+        <div class="feedback-label" id="feedbackLabel">Feedback</div>
+        <div id="feedbackText"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar hidden" id="bottomBar">
+      <div class="score-display">
+        <div class="score-item good">✓ <strong id="correctCount">0</strong> correct</div>
+        <div class="score-item bad">✗ <strong id="wrongCount">0</strong> wrong</div>
+        <div class="score-item">📝 <strong id="totalCount">0</strong> answered</div>
+      </div>
+      <button class="action-btn secondary hidden" id="submitBtn" onclick="submitOpen()">Submit Answer</button>
+      <button class="action-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentTopic = 'NIST AI RMF';
+let currentMode = 'flashcard';
+let questionCount = 0;
+let correct = 0;
+let wrong = 0;
+let answered = false;
+let currentQuestion = null;
+let loading = false;
+
+function selectTopic(btn) {
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentTopic = btn.dataset.topic;
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  if (mode === 'flashcard') document.getElementById('modeFlash').classList.add('active');
+  if (mode === 'scenario') document.getElementById('modeScenario').classList.add('active');
+  if (mode === 'interview') document.getElementById('modeInterview').classList.add('active');
+}
+
+function startSession() {
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  document.getElementById('questionArea').classList.remove('hidden');
+  document.getElementById('bottomBar').classList.remove('hidden');
+  loadQuestion();
+}
+
+async function loadQuestion() {
+  if (loading) return;
+  loading = true;
+  answered = false;
+
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('feedbackBox').classList.add('hidden');
+  document.getElementById('mcOptions').classList.add('hidden');
+  document.getElementById('openAnswerArea').classList.add('hidden');
+  document.getElementById('submitBtn').classList.add('hidden');
+  document.getElementById('questionContext').classList.add('hidden');
+  document.getElementById('openAnswer').value = '';
+
+  const qNum = ++questionCount;
+  document.getElementById('qNum').textContent = `#${qNum}`;
+  document.getElementById('qTopic').textContent = currentTopic;
+
+  const modeLabel = currentMode === 'flashcard' ? 'Flashcard' : currentMode === 'scenario' ? 'Scenario' : 'Interview';
+  document.getElementById('qTag').textContent = modeLabel;
+  document.getElementById('qTag').className = `q-tag tag-${currentMode}`;
+
+  document.getElementById('questionText').textContent = 'Generating question...';
+
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildUserPrompt();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content[0].text;
+    const clean = text.replace(/```json|```/g, '').trim();
+    currentQuestion = JSON.parse(clean);
+
+    renderQuestion(currentQuestion);
+  } catch (e) {
+    document.getElementById('questionText').textContent = 'Error loading question. Please try again.';
+    document.getElementById('nextBtn').disabled = false;
+  }
+
+  loading = false;
+}
+
+function buildSystemPrompt() {
+  return `You are a study coach helping someone prepare for an Information Security Analyst interview at a financial services firm. The role focuses on AI governance, cybersecurity risk, stakeholder communication, and business-facing security consulting.
+
+The candidate has an IT Service Desk background and is transitioning into InfoSec/AI Governance. Keep questions practical and relevant to real-world financial services contexts.
+
+Return ONLY valid JSON, no markdown, no preamble. Always return exactly this structure:
+
+For flashcard mode:
+{"type":"mc","question":"...","context":"..." (optional, omit if not needed),"options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}
+
+For scenario mode:
+{"type":"open","question":"...","context":"A business scenario description here","sampleAnswer":"...","keyPoints":["point1","point2","point3"]}
+
+For interview mode:
+{"type":"open","question":"...","context":"" ,"sampleAnswer":"...","keyPoints":["point1","point2","point3"]}
+
+correct is the 0-based index of the correct option for MC questions.
+Make questions progressively challenging. Be specific and realistic.`;
+}
+
+function buildUserPrompt() {
+  const topic = currentTopic === 'Mixed'
+    ? 'any of these topics: NIST AI RMF, SR 11-7 Model Risk Management, ISO 42001, ITIL Fundamentals, or AI Cybersecurity Controls'
+    : currentTopic;
+
+  if (currentMode === 'flashcard') {
+    return `Generate a multiple choice flashcard question about ${topic}. Focus on practical knowledge a financial services InfoSec analyst would need. Question ${questionCount}.`;
+  } else if (currentMode === 'scenario') {
+    return `Generate a realistic scenario-based question about ${topic} set in a financial services firm. The candidate must explain how they would handle a situation involving AI governance, stakeholder communication, or security risk evaluation. Question ${questionCount}.`;
+  } else {
+    return `Generate a realistic interview question about ${topic} for an Information Security Analyst role at a financial services firm. Focus on behavioral (STAR-format) or situational questions that test stakeholder communication, risk thinking, and AI governance awareness. Question ${questionCount}.`;
+  }
+}
+
+function renderQuestion(q) {
+  document.getElementById('questionText').textContent = q.question;
+
+  if (q.context) {
+    const ctx = document.getElementById('questionContext');
+    ctx.textContent = q.context;
+    ctx.classList.remove('hidden');
+  }
+
+  if (q.type === 'mc') {
+    const container = document.getElementById('mcOptions');
+    container.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt.replace(/^[A-D]\.\s*/, '')}</span>`;
+      btn.onclick = () => selectOption(i, btn, q);
+      container.appendChild(btn);
+    });
+    container.classList.remove('hidden');
+  } else {
+    document.getElementById('openAnswerArea').classList.remove('hidden');
+    document.getElementById('submitBtn').classList.remove('hidden');
+  }
+}
+
+function selectOption(idx, btn, q) {
+  if (answered) return;
+  answered = true;
+
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach(b => b.disabled = true);
+
+  const isCorrect = idx === q.correct;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  buttons[q.correct].classList.add('correct');
+
+  if (isCorrect) correct++;
+  else wrong++;
+  updateScore();
+
+  showFeedback(isCorrect ? 'correct' : 'wrong', isCorrect ? '✓ Correct!' : '✗ Not quite', q.explanation);
+  document.getElementById('nextBtn').disabled = false;
+}
+
+async function submitOpen() {
+  const answer = document.getElementById('openAnswer').value.trim();
+  if (!answer || answered) return;
+  answered = true;
+
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('openAnswer').disabled = true;
+
+  showFeedback('neutral', 'Evaluating...', '');
+  document.getElementById('feedbackText').innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+
+  const q = currentQuestion;
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: `You are evaluating a study answer for someone preparing for an InfoSec Analyst interview at a financial services firm. Be direct, encouraging, and specific. Return ONLY JSON: {"score":"strong"|"partial"|"weak","feedback":"2-3 sentence evaluation","missed":["key point missed if any"],"tip":"one actionable improvement tip"}`,
+        messages: [{
+          role: 'user',
+          content: `Question: ${q.question}\n\nCandidate answer: ${answer}\n\nSample answer: ${q.sampleAnswer}\n\nKey points to look for: ${JSON.stringify(q.keyPoints)}\n\nEvaluate the candidate's answer.`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content[0].text.replace(/```json|```/g, '').trim();
+    const eval_ = JSON.parse(text);
+
+    const scoreMap = { strong: 'correct', partial: 'neutral', weak: 'wrong' };
+    const labelMap = { strong: '✓ Strong Answer', partial: '~ Partial Credit', weak: '✗ Needs Work' };
+
+    if (eval_.score === 'strong') correct++;
+    else wrong++;
+    updateScore();
+
+    const missedHtml = eval_.missed?.length
+      ? `<br><br><strong>Missed:</strong> ${eval_.missed.join(', ')}`
+      : '';
+    const tipHtml = eval_.tip ? `<br><br><strong>Tip:</strong> ${eval_.tip}` : '';
+
+    showFeedback(scoreMap[eval_.score], labelMap[eval_.score], eval_.feedback + missedHtml + tipHtml);
+  } catch (e) {
+    showFeedback('neutral', 'Feedback', 'Could not evaluate. Review the sample answer: ' + q.sampleAnswer);
+    document.getElementById('feedbackBox').innerHTML += `<br><br><strong>Sample Answer:</strong> ${q.sampleAnswer}`;
+  }
+
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function showFeedback(type, label, text) {
+  const box = document.getElementById('feedbackBox');
+  box.className = `feedback ${type}`;
+  document.getElementById('feedbackLabel').textContent = label;
+  document.getElementById('feedbackText').innerHTML = text;
+  box.classList.remove('hidden');
+}
+
+function updateScore() {
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = correct + wrong;
+}
+
+function nextQuestion() {
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('openAnswer').disabled = false;
+  loadQuestion();
+}
+</script>
+</body>
+</html>
