@@ -2,8 +2,46 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>InfoSec Study Agent</title>
+
+<!-- PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="InfoSec Study">
+<meta name="theme-color" content="#0c0e14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="AI-powered study agent for InfoSec Analyst interview prep">
+
+<!-- PWA Icons (inline SVG as data URI) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230c0e14'/%3E%3Crect x='8' y='8' width='84' height='84' rx='16' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234f6ef7'/%3E%3Cstop offset='1' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle'%3E%F0%9F%9B%A1%EF%B8%8F%3C/text%3E%3C/svg%3E">
+
+<!-- PWA Manifest inline -->
+<script>
+  const manifestData = {
+    name: "InfoSec Study Agent",
+    short_name: "InfoSec Study",
+    description: "AI-powered study agent for InfoSec Analyst interview prep",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#0c0e14",
+    theme_color: "#0c0e14",
+    orientation: "portrait-primary",
+    icons: [
+      {
+        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230c0e14'/%3E%3Crect x='8' y='8' width='84' height='84' rx='16' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234f6ef7'/%3E%3Cstop offset='1' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle'%3E%F0%9F%9B%A1%EF%B8%8F%3C/text%3E%3C/svg%3E",
+        sizes: "192x192",
+        type: "image/svg+xml"
+      }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+  const manifestURL = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = manifestURL;
+  document.currentScript.parentNode.appendChild(link);
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -378,6 +416,119 @@
   }
 
   .hidden { display: none !important; }
+
+  /* API KEY SCREEN */
+  .apikey-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 24px;
+  }
+  .apikey-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 420px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .apikey-icon { font-size: 36px; text-align: center; }
+  .apikey-card h2 { font-size: 18px; font-weight: 700; text-align: center; letter-spacing: -0.2px; }
+  .apikey-card p { font-size: 13px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  .apikey-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .apikey-input:focus { border-color: var(--accent); }
+  .apikey-input::placeholder { color: var(--text-muted); font-family: 'Inter', sans-serif; letter-spacing: 0; }
+  .apikey-submit {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    padding: 13px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.15s;
+  }
+  .apikey-submit:hover { opacity: 0.88; }
+  .apikey-note { font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  .apikey-note a { color: var(--accent); text-decoration: none; }
+  .apikey-error { font-size: 12px; color: var(--red); text-align: center; display: none; }
+
+
+  /* MOBILE RESPONSIVE */
+  @media (max-width: 600px) {
+    .header { padding: 14px 16px; }
+    .header-badge { display: none; }
+
+    .layout { flex-direction: column; }
+
+    .sidebar {
+      width: 100%;
+      min-width: unset;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 12px 8px;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+    .sidebar-label { display: none; }
+    .topic-btn {
+      font-size: 11px;
+      padding: 6px 10px;
+      flex-direction: row;
+      white-space: nowrap;
+    }
+    .topic-icon { font-size: 12px; }
+    .mode-toggle {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+      margin-left: auto;
+    }
+    .mode-row { gap: 2px; }
+    .mode-btn { font-size: 10px; padding: 5px 6px; }
+
+    .question-area { padding: 16px; gap: 14px; }
+    .question-card { padding: 16px; }
+    .question-card h3 { font-size: 15px; }
+    .option-btn { font-size: 13px; padding: 12px 14px; }
+    .answer-box { font-size: 14px; min-height: 100px; }
+    .feedback { font-size: 13px; padding: 14px 16px; }
+
+    .bottom-bar { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+    .score-display { font-size: 11px; gap: 10px; }
+    .action-btn { font-size: 12px; padding: 9px 16px; }
+
+    .welcome { padding: 24px 20px; }
+    .welcome h2 { font-size: 18px; }
+    .welcome p { font-size: 13px; }
+    .welcome-chips { gap: 6px; }
+    .chip { font-size: 11px; padding: 4px 10px; }
+    .start-btn { font-size: 13px; padding: 11px 24px; }
+  }
 </style>
 </head>
 <body>
@@ -486,6 +637,7 @@
 </div>
 
 <script>
+let apiKey = '';
 let currentTopic = 'NIST AI RMF';
 let currentMode = 'flashcard';
 let questionCount = 0;
@@ -494,6 +646,16 @@ let wrong = 0;
 let answered = false;
 let currentQuestion = null;
 let loading = false;
+
+function submitApiKey() {
+  const input = document.getElementById('apikeyInput').value.trim();
+  if (!input.startsWith('sk-ant-')) {
+    document.getElementById('apikeyError').style.display = 'block';
+    return;
+  }
+  apiKey = input;
+  document.getElementById('apikeyScreen').style.display = 'none';
+}
 
 function selectTopic(btn) {
   document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
@@ -545,7 +707,7 @@ async function loadQuestion() {
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
@@ -663,7 +825,7 @@ async function submitOpen() {
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
@@ -719,6 +881,72 @@ function nextQuestion() {
   document.getElementById('openAnswer').disabled = false;
   loadQuestion();
 }
+
+// Register Service Worker for offline support
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'infosec-study-v1';
+    const ASSETS = ['./', './index.html'];
+
+    self.addEventListener('install', e => {
+      e.waitUntil(
+        caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+      );
+    });
+
+    self.addEventListener('activate', e => {
+      e.waitUntil(
+        caches.keys().then(keys => Promise.all(
+          keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+        )).then(() => self.clients.claim())
+      );
+    });
+
+    self.addEventListener('fetch', e => {
+      // Only cache same-origin requests, pass through API calls
+      if (e.request.url.includes('anthropic.com')) return;
+      e.respondWith(
+        caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
+          if (res.ok && e.request.method === 'GET') {
+            const clone = res.clone();
+            caches.open(CACHE).then(cache => cache.put(e.request, clone));
+          }
+          return res;
+        }).catch(() => caches.match('./')))
+      );
+    });
+  `;
+  const swBlob = new Blob([swCode], { type: 'application/javascript' });
+  const swURL = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swURL, { scope: './' })
+    .then(() => console.log('SW registered'))
+    .catch(e => console.log('SW registration failed', e));
+}
 </script>
+
+<!-- API KEY SCREEN -->
+<div class="apikey-screen" id="apikeyScreen">
+  <div class="apikey-card">
+    <div class="apikey-icon">🔑</div>
+    <h2>Enter your Anthropic API Key</h2>
+    <p>Your key is used only in this session and never stored or sent anywhere except directly to Anthropic's API.</p>
+    <input
+      class="apikey-input"
+      id="apikeyInput"
+      type="password"
+      placeholder="sk-ant-..."
+      onkeydown="if(event.key==='Enter') submitApiKey()"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <div class="apikey-error" id="apikeyError">Invalid key — must start with sk-ant-</div>
+    <button class="apikey-submit" onclick="submitApiKey()">Start Studying →</button>
+    <div class="apikey-note">
+      Don't have a key? Get one free at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>
+      Your key stays in memory only — it's gone when you close the tab.
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
