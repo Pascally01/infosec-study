@@ -542,7 +542,7 @@
   <div class="header-badge">Powered by Claude</div>
 </div>
 
-<div class="layout">
+<div class="layout" id="mainLayout">
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-label">Topics</div>
@@ -639,6 +639,13 @@
 <script>
 let apiKey = '';
 let currentTopic = 'NIST AI RMF';
+
+// Show API key screen on load, hide main layout
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('apikeyScreen').style.display = 'flex';
+  document.getElementById('mainLayout').style.display = 'none';
+  document.getElementById('apikeyInput').focus();
+});
 let currentMode = 'flashcard';
 let questionCount = 0;
 let correct = 0;
@@ -655,6 +662,7 @@ function submitApiKey() {
   }
   apiKey = input;
   document.getElementById('apikeyScreen').style.display = 'none';
+  document.getElementById('mainLayout').style.display = 'flex';
 }
 
 function selectTopic(btn) {
